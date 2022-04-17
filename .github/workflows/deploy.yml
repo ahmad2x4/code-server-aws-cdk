@@ -1,0 +1,34 @@
+name: deploy-test
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: {}
+jobs:
+  deploy:
+    name: Deploy CDK stacks to test
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+      id-token: write
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::446961670713:role/exampleGitHubDeployRole
+          aws-region: ap-southeast-2
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+      - name: Install dependencies
+        working-directory: ./ias/application
+        run: npm install
+      - name: CDK synth
+        working-directory: ./ias/application
+        run: npx cdk synth --output "cdk.out"
+      - name: CDK deploy
+        working-directory: ./ias/application
+        run: npx cdk deploy --all --app "cdk.out" --require-approval never
