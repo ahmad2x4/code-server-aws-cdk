@@ -24,11 +24,11 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Install dependencies
-        working-directory: ./ias/application
+        working-directory: ./iac/application
         run: npm install
       - name: CDK synth
-        working-directory: ./ias/application
+        working-directory: ./iac/application
         run: npx cdk synth --output "cdk.out"
       - name: CDK deploy
-        working-directory: ./ias/application
+        working-directory: ./iac/application
         run: npx cdk deploy --all --app "cdk.out" --require-approval never
